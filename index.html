@@ -45,7 +45,7 @@
         this.els.root = document.getElementById('root');
         this.els.video = createNode({ root: this.els.root, className: 'video' })
         this.els.backdrop = createNode({ root: this.els.video, className: 'backdrop' })
-        this.video = createNode({ root: this.els.video, tag: 'video', attributes: { src: `tftc-360-noaudio.mp4`, loop: 'true', playsinline: 'true' } })
+        // this.video = createNode({ root: this.els.video, tag: 'video', attributes: { src: `tftc-360-noaudio.mp4`, loop: 'true', playsinline: 'true' } })
         this.els.scanlines = createNode({ root: this.els.video, className: 'scanlines' })
         this.els.fire = createNode({ root: this.els.root, className: 'fire' })
         this.els.vhs = createNode({ root: this.els.root, className: 'vhs' })
@@ -59,7 +59,11 @@
       }
       handleDocumentClick(event){
         this.video_playing = !!(this.video && this.video.currentTime > 0 && !this.video.paused && !this.video.ended && this.video.readyState > 2);
-        if(this.video_playing){
+        if(!this.video){
+          this.video = createNode({ root: this.els.video, tag: 'video', attributes: { src: `tftc-360-noaudio.mp4`, loop: 'true', playsinline: 'true' } })
+          this.video.play();
+          document.querySelector('html').classList.add('play')
+        } else if(this.video_playing) {
           this.video.pause();
           document.querySelector('html').classList.remove('play')
         } else {
