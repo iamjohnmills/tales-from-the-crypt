@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>TALES FROM THE CRYPT</title>
+  <style>
+    body { margin: 0; background: #000;width: 100%; height: 100%;  }
+    html * { cursor: none;}
+    html:not(.play) * { cursor: url('play.png'), auto; }
+    #root { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .video { position: absolute; left: 0; top: 0; right: 0; bottom: 0;  }
+    .video .scanlines { background: url(scanlines-rgb.png) center center repeat; mix-blend-mode: color-dodge; position: absolute; top: 0; width: 100%; height: 100%; }
+    video { object-fit: cover; width: 100%; height: 100%; }
+    .vhs { position: relative; z-index: 2; display: inline-block; width: 260px; height: 475px; transform-style: preserve-3d; transform: rotate3d(0, 1, 0, 45deg); }
+    .vhs-face, .vhs-face:after { position: absolute; left: 0; top: 0; right: 0; bottom: 0; width: 100%; height: 100%;  }
+    .vhs-top { background: #1a1a1a; transform: translateY(-33px) rotateX(90deg); height: 66px; }
+    .vhs-bottom { background: #1a1a1a; transform: translateY(442px) rotateX(-90deg); height: 66px; }
+    .vhs-front { background: url(vhs-art.jpg) left top no-repeat; background-size: 577px; transform: translateZ(33px); }
+    .vhs-back { background: url(vhs-art.jpg) right top no-repeat; background-size: 577px; transform: translateZ(-33px) rotateY(180deg); }
+    .vhs-left { background: url(vhs-art.jpg) -260px top no-repeat; background-size: 577px; transform: translateX(-33px) rotateY(-90deg); width: 66px; }
+    .vhs-right { background: url(vhs-art.jpg) -260px top no-repeat; background-size: 577px; transform: translateX(227px) rotateY(90deg); width: 66px; }
+    .fire { position: absolute; bottom: 0px; z-index: 1; mix-blend-mode: plus-lighter; background: url(fire.gif) center top no-repeat; background-size: cover; width: 100%; height: 100%; }
+  </style>
+  <script>
+    const createNode = (options) => {
+      const node = document.createElement(options.tag ? options.tag : 'div');
+      if(options.className) node.setAttribute('class',options.className);
+      if(options.innerHTML) node.innerHTML = options.innerHTML;
+      if(options.attributes) Object.keys(options.attributes).forEach(key => node.setAttribute(key,options.attributes[key]) );
+      if(options.style) Object.keys(options.style).forEach(key => node.style[key] = options.style[key]);
+      if(options.root) options.root.appendChild(node);
+      return node;
+    }  
+    class App {
+      constructor(){
+        document.addEventListener('DOMContentLoaded',this.handleReady.bind(this));
+        document.addEventListener('click',this.handleDocumentClick.bind(this));
+        document.addEventListener('mousemove',this.handleMouseMove.bind(this));
+        document.addEventListener('touchmove',this.handleMouseMove.bind(this));
+        window.addEventListener('resize',this.handleResize.bind(this));
+        this.els = [];
+      }
+      handleReady(){
+        this.els.root = document.getElementById('root');
+        this.els.video = createNode({ root: this.els.root, className: 'video' })
+        this.els.fire = createNode({ root: this.els.video, className: 'fire' })
+        this.els.scanlines = createNode({ root: this.els.video, className: 'scanlines' })
+        this.els.tapes = createNode({ root: this.els.root, className: 'tapes' })
+        this.els.vhs = createNode({ root: this.els.tapes, className: 'vhs' })
+        this.els.vhs_front = createNode({ root: this.els.vhs, className: 'vhs-face vhs-front' })
+        this.els.vhs_back = createNode({ root: this.els.vhs, className: 'vhs-face vhs-back' })
+        this.els.vhs_top = createNode({ root: this.els.vhs, className: 'vhs-face vhs-top' })
+        this.els.vhs_bottom = createNode({ root: this.els.vhs, className: 'vhs-face vhs-bottom' })
+        this.els.vhs_left = createNode({ root: this.els.vhs, className: 'vhs-face vhs-left' })
+        this.els.vhs_right = createNode({ root: this.els.vhs, className: 'vhs-face vhs-right' })
+        this.video = createNode({ root: this.els.video, tag: 'video', attributes: { src: `tftc-360-noaudio.mp4`, loop: 'true', playsinline: 'true' } })
+        this.handleResize();
+      }
+      handleDocumentClick(event){
+        this.video_playing = !!(this.video && this.video.currentTime > 0 && !this.video.paused && !this.video.ended && this.video.readyState > 2);
+        if(this.video_playing){
+          this.video.pause();
+          document.querySelector('html').classList.remove('play')
+        } else {
+          this.video.play();
+          document.querySelector('html').classList.add('play')
+        }
+      }
+      handleMouseMove(event){
+        let x = !!event.touches ? event.touches[0].clientX : event.clientX;
+        this.els.vhs.style.transform = `rotate3d(-0.1,1,0.1,${x/2}deg)`;
+      }
+      handleResize(){
+        const rect = this.els.root.getBoundingClientRect();
+        const rect_vhs = this.els.vhs.getBoundingClientRect();
+        this.els.vhs.style.zoom = rect_vhs.height >= rect.height + 10 ? 0.4 : 1;
+      }
+    }
+    const app = new App();
+  </script>
+</head>
+<body>
+  <div id="root"></div>  
+</body>
+</html>
